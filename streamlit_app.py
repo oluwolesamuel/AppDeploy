@@ -6,10 +6,23 @@ import numpy as np
 st.title("Portfolio Analysis App")
 
 # Upload the Excel file
-uploaded_file = st.file_uploader("Upload your Excel file", type=["xlsx"])
-if uploaded_file:
+
+def dataload():
+    url = "https://github.com/oluwolesamuel/AppDeploy/raw/refs/heads/main/appdata2.parquet"
+    return pd.read_parquet(url)
+
+
+
+#uploaded_file = st.file_uploader("Upload your Excel file", type=["parquet"])
+
+uploaded_file = dataload()
+
+if uploaded_file is not None:
     # Load the Excel file
-    df = pd.read_excel(uploaded_file)
+    #df = pd.read_parquet(uploaded_file)
+
+    df = uploaded_file
+
     df[['PortfolioName', 'EntityID', 'DataSource', 'AssetClass', 'PortfolioManager', 'Type', 'ReturnType']] = df[
         ['PortfolioName', 'EntityID', 'DataSource', 'AssetClass', 'PortfolioManager', 'Type', 'ReturnType']
     ].astype("string")
@@ -70,10 +83,10 @@ if uploaded_file:
             # Allow user to proceed
             st.success("Great! Let's proceed.")
 
-            Months_of_history['RM_Weight'] = 0
-            Months_of_history['CW_Weight'] = 0
-            Months_of_history['PW_Weight'] = 0
-            Months_of_history["Fund_Score"] = 0
+            Months_of_history['RM_Weight'] = None
+            Months_of_history['CW_Weight'] = None
+            Months_of_history['PW_Weight'] = None
+            Months_of_history["Fund_Score"] = None
 
             # Step 3: Input weights for RMs, CWs, and PWs
             st.write("Input weights for RMs, CWs, and PWs (values must sum to 100 for each column):")
@@ -87,21 +100,19 @@ if uploaded_file:
                     "Fund_Score": st.column_config.NumberColumn(label="Fund Score"),
                 },
                 key="portfolio_weights_editor"
-            )
+            )    
 
-            
+            if updated_data.isnull().values.any():
+                st.warning("Please fill in all values")  
 
-            updated_data['ABS_CWVSRM'] = updated_data['CW_Weight']-updated_data['RM_Weight']
-            updated_data['ABS_PWVSRM'] = updated_data['PW_Weight']-updated_data['RM_Weight']
-
-            #st.write(updated_data)
+            else:
+                st.success("All data has been entered.")    
+                updated_data['ABS_CWVSRM'] = updated_data['CW_Weight']-updated_data['RM_Weight']
+                updated_data['ABS_PWVSRM'] = updated_data['PW_Weight']-updated_data['RM_Weight']
 
             st.write(updated_data)
 
-
-                                            
-
-            
+                        
             #st.write(Months_of_history['PortfolioName'])
             rm_weights = updated_data['RM_Weight'] #st.text_input("Enter RM weights as a comma-separated list:")
             cw_weights = updated_data['CW_Weight'] #st.text_input("Enter CW weights as a comma-separated list:")
@@ -111,7 +122,6 @@ if uploaded_file:
             vol_month = st.text_input("Enter the historical volatility periods you'd like to compute as a comma-seperated list:")
 
             
-
             if (rm_weights>0).all() and (cw_weights>0).all() and (pw_weights>0).all():
 
                 
@@ -138,7 +148,7 @@ if uploaded_file:
                     # Benchmark fund input
                                        
                     benchmark = st.selectbox(
-                        "Search and select your benchmark fund:",
+                        "Search and select your peer fund:",
                         options=df['PortfolioName'].unique(),
                         format_func=lambda x: x if isinstance(x, str) else ""
                     )
