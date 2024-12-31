@@ -1,15 +1,66 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+from fpdf import FPDF
 
 # Title of the app
-st.title("Portfolio Analysis App")
+st.title("Portfolio Change Calculator")
+
+manager_story = st.text_input("Tell us what changes you are making, cient name, porfolios you will use and peer for comparison")
+
+text_results = []
+
+tables = []
+
+# Function to generate a PDF
+def generate_pdf(text_results2, dataframes):
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", size=12)
+
+    # Add text results
+    for text in text_results2:
+        pdf.multi_cell(0, 10, text)
+        pdf.ln(5)  # Add spacing
+
+    # Add DataFrames
+    for title, df in dataframes:
+        pdf.ln(5)  # Add spacing before the table
+        pdf.set_font("Arial", size=8)
+        pdf.cell(0, 10, title, ln=True)
+        pdf.set_font("Arial", size=8)
+
+        # Set custom width for the first column and distribute remaining width to other columns
+        first_col_width = 45  # Make the first column wider (adjust as needed)
+        remaining_width = pdf.w - 20 - first_col_width  # Subtract the margins and first column width
+        col_width = remaining_width / (len(df.columns) - 1)  # Distribute remaining width evenly for other columns
+
+        row_height = pdf.font_size + 2
+
+        # Write header row
+        pdf.cell(first_col_width, row_height, str(df.columns[0]), border=1)  # First column header
+        for col in df.columns[1:]:
+            pdf.cell(col_width, row_height, str(col), border=1)  # Other column headers
+        pdf.ln(row_height)
+
+        # Write data rows
+        for row in df.itertuples(index=False):
+            pdf.cell(first_col_width, row_height, str(row[0]), border=1)  # First column value
+            for value in row[1:]:
+                pdf.cell(col_width, row_height, str(value), border=1)  # Other column values
+            pdf.ln(row_height)
+
+    return pdf.output(dest='S').encode('latin1')
+
+text_results.append(manager_story)
 
 # Upload the Excel file
 
 def dataload():
     url = "https://github.com/oluwolesamuel/AppDeploy/raw/refs/heads/main/appdata2.parquet"
     return pd.read_parquet(url)
+
+
 
 
 
@@ -57,28 +108,21 @@ if uploaded_file is not None:
 
 # Show selected funds and filter the dataframe
     if selected_funds2:
-        #st.write(f"You selected: {selected_funds}")
+        
         funds_df = df[df['PortfolioName'].isin(selected_funds2)]
-        #st.write("Filtered DataFrame:", funds_df)
-
-        # Display filtered funds and their counts
-        #st.write("Filtered Funds:")
-        #st.dataframe(funds_df)
+        
 
         fund_counts = funds_df['PortfolioName'].value_counts().reset_index()
 
-        fund_counts.rename(columns={'index': 'PortfolioName', 'count': 'Months of History Available'}, inplace=True)
+        fund_counts.rename(columns={'index': 'PortfolioName', 'count': 'History'}, inplace=True)
 
 
         Months_of_history = fund_counts
-        
-        
-
-        #st.write("Number of occurrences for each unique fund:")
-        #st.write(Months_of_history)
-
+              
+       
         # Step 2: Confirm if the user is satisfied with the selection
         satisfied = st.radio("Are you satisfied with these results?", options=["Yes", "No"])
+
         if satisfied == "Yes":
             # Allow user to proceed
             st.success("Great! Let's proceed.")
@@ -112,8 +156,10 @@ if uploaded_file is not None:
 
             st.write(updated_data)
 
+            tables.append(("Input Table", updated_data))
+
                         
-            #st.write(Months_of_history['PortfolioName'])
+            
             rm_weights = updated_data['RM_Weight'] #st.text_input("Enter RM weights as a comma-separated list:")
             cw_weights = updated_data['CW_Weight'] #st.text_input("Enter CW weights as a comma-separated list:")
             pw_weights = updated_data['PW_Weight'] #st.text_input("Enter PW weights as a comma-separated list:")
@@ -142,8 +188,7 @@ if uploaded_file is not None:
                     funds_pivot['CW'] = np.dot(fund_returns, cw_weights)
                     funds_pivot['PW'] = np.dot(fund_returns, pw_weights)
 
-                    #st.write("Pivot Table with Calculations")
-                    #st.dataframe(funds_pivot)
+                    
 
                     # Benchmark fund input
                                        
@@ -172,16 +217,15 @@ if uploaded_file is not None:
                             full_table['CWvRM'] = full_table['CW_active'] - full_table['RM_active']
                             full_table['PWvRM'] = full_table['PW_active'] - full_table['RM_active']
 
-                            #st.write("Full Table with Active Values")
-                            #st.dataframe(full_table)
+                            
                             # Volatility calculation
                             def std_dev(df, value_col, num_months):
                                 nearest_date = df['ReturnDate'].max()
                                 date_start = nearest_date - pd.DateOffset(months=num_months)
                                 filtered_df = df[(df['ReturnDate'] >= date_start) & (df['ReturnDate'] <= nearest_date)]
-                                return filtered_df[value_col].std() * (12**0.5) * 100 if not filtered_df.empty else None
+                                return round(filtered_df[value_col].std() * (12**0.5) * 100,4) if not filtered_df.empty else None
 
-                            #vol_periods = [10, 20, 30]
+                            
                             vol_periods = np.array([int(w) for w in vol_month.split(",")])
                             vol_table = pd.DataFrame({
                                 "VolatilityPeriod": [f"{m}m" for m in vol_periods],
@@ -196,10 +240,26 @@ if uploaded_file is not None:
                             })
 
                             st.write("Volatility Table")
+
                             st.dataframe(vol_table)
+
+                            tables.append(("Volatility Table",vol_table))
+
                         else:
-                            st.error("Benchmark fund not found.")
+                            st.error("Benchmark fund not found.")                    
+
                 except Exception as e:
                     st.error(f"Error: {e}")
+        
+        
         else:
             st.warning("Please reselect your funds and try again.")
+
+    if st.button("Download Results"):
+            pdf_data = generate_pdf(text_results, tables)
+            st.download_button(
+                label="Download PDF",
+                data=pdf_data,
+                file_name="results.pdf",
+                mime="application/pdf"
+                             )
