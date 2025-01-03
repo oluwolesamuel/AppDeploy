@@ -6,34 +6,70 @@ from fpdf import FPDF
 # Title of the app
 st.title("Portfolio Change Calculator")
 
-manager_story = st.text_input("Tell us what changes you are making, cient name, porfolios you will use and peer for comparison")
+doc_title = st.text_input("Enter the document title.")
+
+model_name = st.text_input("Enter your model name.")
+
+ref_model = st.text_input("What is your Reference Model?")
+
+peer_group = st.text_input("What peer group are you using?")
+
+manager_name = st.text_input("Enter manager name.")
+
+analysis_date = st.text_input("What is the analyis date?")
+
+model_exp = st.text_input("Explain the model.")
 
 text_results = []
 
 tables = []
 
 # Function to generate a PDF
-def generate_pdf(text_results2, dataframes):
+def generate_pdf(pdf_title, text_results2, dataframes):
+    """
+    Generates a PDF with a title, text results (each with a title), and dataframes.
+
+    Parameters:
+    - pdf_title: Title of the PDF document.
+    - text_results: A list of tuples (title, text), where each tuple contains a title for the text.
+    - dataframes: A list of tuples (title, dataframe), where each tuple contains a title for the DataFrame.
+
+    Returns:
+    - PDF content as a bytes object.
+    """
+    from fpdf import FPDF
+
     pdf = FPDF()
     pdf.add_page()
-    pdf.set_font("Arial", size=12)
 
-    # Add text results
-    for text in text_results2:
+    # Add PDF title
+    pdf.set_font("Arial", style="B", size=16)
+    pdf.cell(0, 10, pdf_title, ln=True, align="C")
+    pdf.ln(10)  # Add spacing after the title
+
+    # Add text results with titles
+    for title, text in text_results2:
+        pdf.set_font("Arial", style="B", size=12)  # Bold font for the title
+        pdf.cell(0, 10, title, ln=True)
+        pdf.ln(1)  # Add some space after the title
+
+        pdf.set_font("Arial", size=10)  # Normal font for the text
         pdf.multi_cell(0, 10, text)
-        pdf.ln(5)  # Add spacing
+        pdf.ln(5)  # Add spacing after each text block
 
-    # Add DataFrames
+    # Add DataFrames with titles
     for title, df in dataframes:
         pdf.ln(5)  # Add spacing before the table
-        pdf.set_font("Arial", size=8)
+        pdf.set_font("Arial", style="B", size=12)
         pdf.cell(0, 10, title, ln=True)
+        pdf.ln(2)
+
         pdf.set_font("Arial", size=8)
 
         # Set custom width for the first column and distribute remaining width to other columns
-        first_col_width = 45  # Make the first column wider (adjust as needed)
-        remaining_width = pdf.w - 20 - first_col_width  # Subtract the margins and first column width
-        col_width = remaining_width / (len(df.columns) - 1)  # Distribute remaining width evenly for other columns
+        first_col_width = 45  # Adjust as needed
+        remaining_width = pdf.w - 20 - first_col_width
+        col_width = remaining_width / (len(df.columns) - 1)
 
         row_height = pdf.font_size + 2
 
@@ -50,11 +86,16 @@ def generate_pdf(text_results2, dataframes):
                 pdf.cell(col_width, row_height, str(value), border=1)  # Other column values
             pdf.ln(row_height)
 
-    return pdf.output(dest='S').encode('latin1')
+    # Return the PDF as a byte object
+    return pdf.output(dest="S").encode("latin1")
 
-text_results.append(manager_story)
+text_results.append(("Model Name",model_name))
+text_results.append(("Reference Model",ref_model))
+text_results.append(("Peer Group",peer_group))
+text_results.append(("Manager Name", manager_name))
+text_results.append(("Date of Analysis",analysis_date))
+text_results.append(("Model Explanation", model_exp))
 
-# Upload the Excel file
 
 def dataload():
     url = "https://github.com/oluwolesamuel/AppDeploy/raw/refs/heads/main/appdata2.parquet"
@@ -62,16 +103,10 @@ def dataload():
 
 
 
-
-
-#uploaded_file = st.file_uploader("Upload your Excel file", type=["parquet"])
-
 uploaded_file = dataload()
 
 if uploaded_file is not None:
-    # Load the Excel file
-    #df = pd.read_parquet(uploaded_file)
-
+    
     df = uploaded_file
 
     df[['PortfolioName', 'EntityID', 'DataSource', 'AssetClass', 'PortfolioManager', 'Type', 'ReturnType']] = df[
@@ -127,10 +162,10 @@ if uploaded_file is not None:
             # Allow user to proceed
             st.success("Great! Let's proceed.")
 
-            Months_of_history['RM_Weight'] = None
-            Months_of_history['CW_Weight'] = None
-            Months_of_history['PW_Weight'] = None
-            Months_of_history["Fund_Score"] = None
+            Months_of_history['RM_Weight'] = 0
+            Months_of_history['CW_Weight'] = 0
+            Months_of_history['PW_Weight'] = 0
+            Months_of_history["Fund_Score"] = 0
 
             # Step 3: Input weights for RMs, CWs, and PWs
             st.write("Input weights for RMs, CWs, and PWs (values must sum to 100 for each column):")
@@ -151,14 +186,70 @@ if uploaded_file is not None:
 
             else:
                 st.success("All data has been entered.")    
-                updated_data['ABS_CWVSRM'] = updated_data['CW_Weight']-updated_data['RM_Weight']
-                updated_data['ABS_PWVSRM'] = updated_data['PW_Weight']-updated_data['RM_Weight']
+                updated_data['ABS_CWVSRM'] = abs(updated_data['CW_Weight']-updated_data['RM_Weight'])
+                updated_data['ABS_PWVSRM'] = abs(updated_data['PW_Weight']-updated_data['RM_Weight'])
 
             st.write(updated_data)
 
+            measures_table = pd.DataFrame({
+                'Measure' : ['SA Equity(Hist/Curr)', 'Global Equity(Hist/Curr)', 'Total Global(Hist/Curr)',
+                'RR EXP excl TAA Alpha', 'TAA Alpha', 'EXP Return Net Fees'],
+                'RM' : [0,0,0,0,0,0],
+                'Current' : [0,0,0,0,0,0],
+                'Proposed' : [0,0,0,0,0,0]
+
+                })
+
+            # 'Total RR EXP'
+
+            
+            measures_table['RM'] = 0
+            measures_table['Current'] = 0
+            measures_table['Proposed'] = 0
+
+            measures_table2 = st.data_editor( measures_table,
+            column_config = {
+                'RM' : st.column_config.NumberColumn(label="RM"),
+                'Current' : st.column_config.NumberColumn(label="Current"),
+                'Proposed' : st.column_config.NumberColumn(label="Proposed"),
+            },
+            key="weights_editor"
+            )         
+
+            sum_row = measures_table2.loc[3, ['RM', 'Current', 'Proposed']] + measures_table2.loc[4, ['RM', 'Current', 'Proposed']]
+
+            new_row = pd.DataFrame([{'Measure':'Total RR EXP', 'RM':sum_row['RM'], 
+            'Current':sum_row['Current'], 'Proposed':sum_row['Proposed']}])
+
+            measures_table2 = pd.concat([measures_table2,new_row], ignore_index = True)
+
+
+            weighted = pd.DataFrame({
+                'Measure' : ['WeightedAVGScore'],
+                'RM' : [0],
+                'Current' : [0],
+                'Proposed' : [0]
+            })
+
+            #pd.DataFrame(weighted)
+
+            
+
+            weighted['RM'] = round((np.dot((updated_data['RM_Weight'].values/100),(updated_data['Fund_Score'].values/100)))*100,4)
+            weighted['Current'] = round((np.dot((updated_data['CW_Weight'].values/100),(updated_data['Fund_Score'].values/100)))*100,4)
+            weighted['Proposed'] = round((np.dot((updated_data['PW_Weight'].values/100),(updated_data['Fund_Score'].values/100)))*100,4)
+
+            measures_table3 = pd.concat([measures_table2,weighted], ignore_index = True)
+
+            measures_table3['P-RM'] = measures_table3['Proposed'] - measures_table3['RM']
+
+            measures_table3['P-CW'] = measures_table3['Proposed'] - measures_table3['Current']
+
+            st.write(measures_table3)
+
             tables.append(("Input Table", updated_data))
 
-                        
+            tables.append(("Other Measures", measures_table3))                                   
             
             rm_weights = updated_data['RM_Weight'] #st.text_input("Enter RM weights as a comma-separated list:")
             cw_weights = updated_data['CW_Weight'] #st.text_input("Enter CW weights as a comma-separated list:")
@@ -169,9 +260,7 @@ if uploaded_file is not None:
 
             
             if (rm_weights>0).all() and (cw_weights>0).all() and (pw_weights>0).all():
-
-                
-                
+                              
                 try:
                     rm_weights = updated_data['RM_Weight'].values / 100 #np.array([float(w) for w in rm_weights.split(",")]) / 100
                     cw_weights = updated_data['CW_Weight'].values / 100 #np.array([float(w) for w in cw_weights.split(",")]) / 100
@@ -186,9 +275,7 @@ if uploaded_file is not None:
                     # Perform calculations
                     funds_pivot['RM'] = np.dot(fund_returns, rm_weights)
                     funds_pivot['CW'] = np.dot(fund_returns, cw_weights)
-                    funds_pivot['PW'] = np.dot(fund_returns, pw_weights)
-
-                    
+                    funds_pivot['PW'] = np.dot(fund_returns, pw_weights)                    
 
                     # Benchmark fund input
                                        
@@ -196,8 +283,7 @@ if uploaded_file is not None:
                         "Search and select your peer fund:",
                         options=df['PortfolioName'].unique(),
                         format_func=lambda x: x if isinstance(x, str) else ""
-                    )
-                    
+                    )                    
                     
                     if benchmark:
                         bm_df = df[df['PortfolioName'].str.lower() == benchmark.lower()]
@@ -256,7 +342,7 @@ if uploaded_file is not None:
             st.warning("Please reselect your funds and try again.")
 
     if st.button("Download Results"):
-            pdf_data = generate_pdf(text_results, tables)
+            pdf_data = generate_pdf(doc_title,text_results, tables)
             st.download_button(
                 label="Download PDF",
                 data=pdf_data,
