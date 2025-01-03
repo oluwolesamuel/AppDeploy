@@ -162,10 +162,10 @@ if uploaded_file is not None:
             # Allow user to proceed
             st.success("Great! Let's proceed.")
 
-            Months_of_history['RM_Weight'] = 0
-            Months_of_history['CW_Weight'] = 0
-            Months_of_history['PW_Weight'] = 0
-            Months_of_history["Fund_Score"] = 0
+            Months_of_history['RM_Weight'] = 0.00
+            Months_of_history['CW_Weight'] = 0.00
+            Months_of_history['PW_Weight'] = 0.00
+            Months_of_history["Fund_Score"] = 0.00
 
             # Step 3: Input weights for RMs, CWs, and PWs
             st.write("Input weights for RMs, CWs, and PWs (values must sum to 100 for each column):")
@@ -173,10 +173,10 @@ if uploaded_file is not None:
             updated_data = st.data_editor (
                 Months_of_history,
                 column_config = {
-                    "RM_Weight": st.column_config.NumberColumn(label="RM Weight"),
-                    "CW_Weight": st.column_config.NumberColumn(label="CW Weight"),
-                    "PW_Weight": st.column_config.NumberColumn(label="PW Weight"),
-                    "Fund_Score": st.column_config.NumberColumn(label="Fund Score"),
+                    "RM_Weight": st.column_config.NumberColumn(label="RM Weight", format = "%.2f"),
+                    "CW_Weight": st.column_config.NumberColumn(label="CW Weight", format = "%.2f"),
+                    "PW_Weight": st.column_config.NumberColumn(label="PW Weight", format = "%.2f"),
+                    "Fund_Score": st.column_config.NumberColumn(label="Fund Score", format = "%.2f"),
                 },
                 key="portfolio_weights_editor"
             )    
@@ -203,15 +203,15 @@ if uploaded_file is not None:
             # 'Total RR EXP'
 
             
-            measures_table['RM'] = 0
-            measures_table['Current'] = 0
-            measures_table['Proposed'] = 0
+            measures_table['RM'] = 0.00
+            measures_table['Current'] = 0.00
+            measures_table['Proposed'] = 0.00
 
             measures_table2 = st.data_editor( measures_table,
             column_config = {
-                'RM' : st.column_config.NumberColumn(label="RM"),
-                'Current' : st.column_config.NumberColumn(label="Current"),
-                'Proposed' : st.column_config.NumberColumn(label="Proposed"),
+                'RM' : st.column_config.NumberColumn(label="RM", format = "%.2f"),
+                'Current' : st.column_config.NumberColumn(label="Current", format = "%.2f"),
+                'Proposed' : st.column_config.NumberColumn(label="Proposed", format = "%.2f"),
             },
             key="weights_editor"
             )         
