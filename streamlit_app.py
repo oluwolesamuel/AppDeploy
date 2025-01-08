@@ -170,31 +170,38 @@ if uploaded_file is not None:
             # Step 3: Input weights for RMs, CWs, and PWs
             st.write("Input weights for RMs, CWs, and PWs (values must sum to 100 for each column):")
 
-            updated_data = st.data_editor (
-                Months_of_history,
+            ## st.session to ensure too many reruns are prevented
+
+            if "updated_data" not in st.session_state:
+                st.session_state["updated_data"] = Months_of_history.copy()
+
+            st.session_state["updated_data"] = st.data_editor(
+                st.session_state["updated_data"],
                 column_config = {
-                    "RM_Weight": st.column_config.NumberColumn(label="RM Weight", format = "%.2f"),
-                    "CW_Weight": st.column_config.NumberColumn(label="CW Weight", format = "%.2f"),
-                    "PW_Weight": st.column_config.NumberColumn(label="PW Weight", format = "%.2f"),
-                    "Fund_Score": st.column_config.NumberColumn(label="Fund Score", format = "%.2f"),
+                    "RM_Weight": st.column_config.NumberColumn(label="RM Weight", format="%.2f"),
+                    "CW_Weight": st.column_config.NumberColumn(label="CW Weight", format="%.2f"),
+                    "PW_Weight": st.column_config.NumberColumn(label="PW Weight", format="%.2f"),
+                    "Fund_Score": st.column_config.NumberColumn(label="Fund Score", format="%.2f"),
                 },
                 key="portfolio_weights_editor"
-            )    
 
-            if (updated_data['RM_Weight'].sum()==100) and (updated_data['CW_Weight'].sum()==100) and (updated_data['PW_Weight'].sum()==100) and (updated_data['Fund_Score']>0).all():
+            )     
 
-                st.success("All data has been entered correctly.")
-                updated_data['ABS_CWVSRM'] = abs(updated_data['CW_Weight']-updated_data['RM_Weight'])
-                updated_data['ABS_PWVSRM'] = abs(updated_data['PW_Weight']-updated_data['RM_Weight'])                                            
-                              
-               
-            else:
-                st.warning("Some values have not been entered correctly. Please Check that your weight percentages and fund scores are correctly entered.")             
-                
-                
-                               
+            ## input validation button
+
+            if st.button("Validate input"):
+                updated_data = st.session_state["updated_data"]
+                if ( (updated_data["RM_Weight"].sum() == 100) and (updated_data["CW_Weight"].sum() == 100) and (updated_data["PW_Weight"].sum() == 100) and (updated_data["Fund_Score"] > 0).all() ):
                     
-            st.write(updated_data)
+                    st.success("All data has been entered correctly.")
+                    updated_data["ABS_CWVSRM"] = abs(updated_data["CW_Weight"] - updated_data["RM_Weight"])
+                    updated_data["ABS_PWVSRM"] = abs(updated_data["PW_Weight"] - updated_data["RM_Weight"])
+                    st.write(updated_data)
+                else:
+                    st.warning("Some values have not been entered correctly. Please check your input.")                 
+
+        
+            #
 
             measures_table = pd.DataFrame({
                 'Measure' : ['SA Equity(Hist/Curr)', 'Global Equity(Hist/Curr)', 'Total Global(Hist/Curr)',
