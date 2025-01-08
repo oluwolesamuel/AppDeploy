@@ -198,7 +198,10 @@ if uploaded_file is not None:
                     updated_data["ABS_PWVSRM"] = abs(updated_data["PW_Weight"] - updated_data["RM_Weight"])
                     st.write(updated_data)
                 else:
-                    st.warning("Some values have not been entered correctly. Please check your input.")                 
+                    st.warning("Some values have not been entered correctly. Please check your input.")   
+
+
+            updated_data = st.session_state["updated_data"]
 
         
             #
