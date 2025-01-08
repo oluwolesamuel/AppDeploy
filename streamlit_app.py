@@ -172,8 +172,8 @@ if uploaded_file is not None:
 
             ## st.session to ensure too many reruns are prevented
 
-            if "updated_data" not in st.session_state:
-                st.session_state["updated_data"] = Months_of_history.copy()
+            #if "updated_data" not in st.session_state:
+            st.session_state["updated_data"] = Months_of_history.copy()
 
             st.session_state["updated_data"] = st.data_editor(
                 st.session_state["updated_data"],
