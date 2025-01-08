@@ -181,20 +181,19 @@ if uploaded_file is not None:
                 key="portfolio_weights_editor"
             )    
 
-            if (updated_data['RM_Weight'].sum()!=100) and (updated_data['CW_Weight'].sum()!=100) and (updated_data['PW_Weight'].sum()!=100 and (updated_data['Fund_Score']<=0).all()):
+            if (updated_data['RM_Weight'].sum()==100) and (updated_data['CW_Weight'].sum()==100) and (updated_data['PW_Weight'].sum()==100 and (updated_data['Fund_Score']>0).all()):
 
-                st.warning("Some values have not been entered correctly. Please Check that your weight percentages and fund scores are correctly entered.")
-                                
-                
-                
-                
-
-            else:
                 st.success("All data has been entered correctly.")
                 updated_data['ABS_CWVSRM'] = abs(updated_data['CW_Weight']-updated_data['RM_Weight'])
-                updated_data['ABS_PWVSRM'] = abs(updated_data['PW_Weight']-updated_data['RM_Weight'])
-                                   
-                      
+                updated_data['ABS_PWVSRM'] = abs(updated_data['PW_Weight']-updated_data['RM_Weight'])                                            
+                              
+               
+            else:
+                st.warning("Some values have not been entered correctly. Please Check that your weight percentages and fund scores are correctly entered.")             
+                
+                
+                               
+                    
             st.write(updated_data)
 
             measures_table = pd.DataFrame({
@@ -245,9 +244,9 @@ if uploaded_file is not None:
 
             measures_table3 = pd.concat([measures_table2,weighted], ignore_index = True)
 
-            measures_table3['P-RM'] = measures_table3['Proposed'] - measures_table3['RM']
+            measures_table3['P-RM'] = round((measures_table3['Proposed'] - measures_table3['RM']),4)
 
-            measures_table3['P-CW'] = measures_table3['Proposed'] - measures_table3['Current']
+            measures_table3['P-CW'] = round((measures_table3['Proposed'] - measures_table3['Current']),4)
 
             st.write(measures_table3)
 
