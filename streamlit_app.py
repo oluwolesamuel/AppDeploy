@@ -271,8 +271,12 @@ if uploaded_file is not None:
 
             vol_month = st.text_input("Enter the historical volatility periods you'd like to compute as a comma-seperated list:")
 
+            benchmark = st.selectbox(
+                        "Search and select your peer fund:",
+                        options=df['PortfolioName'].unique(),
+                        format_func=lambda x: x if isinstance(x, str) else ""
+                    )           
             
-            #if (rm_weights>0).all() and (cw_weights>0).all() and (pw_weights>0).all() and (updated_data['RM_Weight'].sum()==100) and (updated_data['CW_Weight'].sum()==100) and (updated_data['PW_Weight'].sum()==100) and (updated_data['Fund_Score']>0).all():
 
             if st.button("Proceed with Calculations"):
                               
@@ -292,14 +296,8 @@ if uploaded_file is not None:
                     funds_pivot['CW'] = np.dot(fund_returns, cw_weights)
                     funds_pivot['PW'] = np.dot(fund_returns, pw_weights)                    
 
-                    # Benchmark fund input
+                    # Benchmark fund input                 
                                        
-                    benchmark = st.selectbox(
-                        "Search and select your peer fund:",
-                        options=df['PortfolioName'].unique(),
-                        format_func=lambda x: x if isinstance(x, str) else ""
-                    )                    
-                    
                     if benchmark:
                         bm_df = df[df['PortfolioName'].str.lower() == benchmark.lower()]
                         if not bm_df.empty:
