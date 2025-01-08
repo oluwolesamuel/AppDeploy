@@ -262,7 +262,7 @@ if uploaded_file is not None:
             vol_month = st.text_input("Enter the historical volatility periods you'd like to compute as a comma-seperated list:")
 
             
-            if (rm_weights>0).all() and (cw_weights>0).all() and (pw_weights>0).all():
+            if (rm_weights>0).all() and (cw_weights>0).all() and (pw_weights>0).all() and (updated_data['RM_Weight'].sum()==100) and (updated_data['CW_Weight'].sum()==100) and (updated_data['PW_Weight'].sum()==100) and (updated_data['Fund_Score']>0).all():
                               
                 try:
                     rm_weights = updated_data['RM_Weight'].values / 100 #np.array([float(w) for w in rm_weights.split(",")]) / 100
