@@ -181,7 +181,7 @@ if uploaded_file is not None:
                 key="portfolio_weights_editor"
             )    
 
-            if (updated_data['RM_Weight'].sum()==100) and (updated_data['CW_Weight'].sum()==100) and (updated_data['PW_Weight'].sum()==100 and (updated_data['Fund_Score']>0).all()):
+            if (updated_data['RM_Weight'].sum()==100) and (updated_data['CW_Weight'].sum()==100) and (updated_data['PW_Weight'].sum()==100) and (updated_data['Fund_Score']>0).all():
 
                 st.success("All data has been entered correctly.")
                 updated_data['ABS_CWVSRM'] = abs(updated_data['CW_Weight']-updated_data['RM_Weight'])
