@@ -347,8 +347,13 @@ if uploaded_file is not None:
                         else:
                             st.error("Benchmark fund not found.") 
 
+                else:
+                    st.error("Benchmark is not specified.")
+
                 if 'vol_table' in locals():
                     tables.append(("Volatility Table", vol_table))
+
+                
 
                 except Exception as e:
                     st.error(f"Error: {e}")
