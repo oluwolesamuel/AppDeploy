@@ -3,6 +3,17 @@ import pandas as pd
 import numpy as np
 from fpdf import FPDF
 
+
+def dataload():
+    url = "https://github.com/oluwolesamuel/AppDeploy/raw/refs/heads/main/appdata2.parquet"
+    return pd.read_parquet(url)
+
+
+
+uploaded_file = dataload()
+
+
+
 # Title of the app
 st.title("Portfolio Change Calculator")
 
@@ -97,13 +108,6 @@ text_results.append(("Date of Analysis",analysis_date))
 text_results.append(("Model Explanation", model_exp))
 
 
-def dataload():
-    url = "https://github.com/oluwolesamuel/AppDeploy/raw/refs/heads/main/appdata2.parquet"
-    return pd.read_parquet(url)
-
-
-
-uploaded_file = dataload()
 
 if uploaded_file is not None:
     
