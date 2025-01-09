@@ -342,7 +342,7 @@ if uploaded_file is not None:
 
                             st.dataframe(vol_table)
 
-                            tables.append(("Volatility Table",vol_table))
+                        tables.append(("Volatility Table",vol_table))
 
                         else:
                             st.error("Benchmark fund not found.")                    
