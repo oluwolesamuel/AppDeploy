@@ -8,10 +8,13 @@ def dataload():
     url = "https://github.com/oluwolesamuel/AppDeploy/raw/refs/heads/main/appdata2.parquet"
     return pd.read_parquet(url)
 
-
-
 uploaded_file = dataload()
 
+df1 = uploaded_file
+
+df1[['PortfolioName', 'EntityID', 'DataSource', 'AssetClass', 'PortfolioManager', 'Type', 'ReturnType']] = df1[
+        ['PortfolioName', 'EntityID', 'DataSource', 'AssetClass', 'PortfolioManager', 'Type', 'ReturnType']
+    ].astype("string")
 
 
 # Title of the app
@@ -21,9 +24,21 @@ doc_title = st.text_input("Enter the document title.")
 
 model_name = st.text_input("Enter your model name.")
 
-ref_model = st.text_input("What is your Reference Model?")
+#ref_model = st.text_input("What is your Reference Model?")
 
-peer_group = st.text_input("What peer group are you using?")
+ref_model = st.selectbox(
+                        "Select a Refence Model: ",
+                        options=df1['PortfolioName'].unique(),
+                        format_func=lambda x: x if isinstance(x, str) else ""
+                    )         
+
+#peer_group = st.text_input("What peer group are you using?")
+
+peer_group = st.selectbox(
+                        "Select a Peer Group Average: ",
+                        options=df1['PortfolioName'].unique(),
+                        format_func=lambda x: x if isinstance(x, str) else ""
+                    )         
 
 manager_name = st.text_input("Enter manager name.")
 
