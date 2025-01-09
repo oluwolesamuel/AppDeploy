@@ -294,7 +294,9 @@ if uploaded_file is not None:
                     # Perform calculations
                     funds_pivot['RM'] = np.dot(fund_returns, rm_weights)
                     funds_pivot['CW'] = np.dot(fund_returns, cw_weights)
-                    funds_pivot['PW'] = np.dot(fund_returns, pw_weights)                    
+                    funds_pivot['PW'] = np.dot(fund_returns, pw_weights)     
+
+                    vol_table = pd.DataFrame()
 
                     # Benchmark fund input                 
                                        
@@ -342,7 +344,7 @@ if uploaded_file is not None:
 
                             st.dataframe(vol_table)
 
-                        tables.append(("Volatility Table",vol_table))
+                            tables.append(("Volatility Table",vol_table))
 
                         else:
                             st.error("Benchmark fund not found.")                    
