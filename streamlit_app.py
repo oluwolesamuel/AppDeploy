@@ -24,15 +24,11 @@ doc_title = st.text_input("Enter the document title.")
 
 model_name = st.text_input("Enter your model name.")
 
-#ref_model = st.text_input("What is your Reference Model?")
-
 ref_model = st.selectbox(
                         "Select a Refence Model: ",
                         options=df1['PortfolioName'].unique(),
                         format_func=lambda x: x if isinstance(x, str) else ""
                     )         
-
-#peer_group = st.text_input("What peer group are you using?")
 
 peer_group = st.selectbox(
                         "Select a Peer Group Average: ",
