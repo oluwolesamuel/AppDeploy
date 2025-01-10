@@ -209,8 +209,8 @@ if uploaded_file is not None:
                 if ( (updated_data["RM_Weight"].sum() == 100) and (updated_data["CW_Weight"].sum() == 100) and (updated_data["PW_Weight"].sum() == 100) and (updated_data["Fund_Score"] > 0).all() ):
                     
                     st.success("All data has been entered correctly.")
-                    updated_data["ABS_CWVSRM"] = abs(updated_data["CW_Weight"] - updated_data["RM_Weight"])
                     updated_data["ABS_PWVSRM"] = abs(updated_data["PW_Weight"] - updated_data["RM_Weight"])
+                    updated_data["ABS_PWVSCW"] = abs(updated_data["PW_Weight"] - updated_data["CW_Weight"])
                     st.write(updated_data)
                 else:
                     st.warning("Some values have not been entered correctly. Please check your input.")   
