@@ -47,12 +47,11 @@ text_results = []
 tables = []
 
  # Volatility calculation
- def std_dev(df3, value_col, num_months):
-     nearest_date = df3['ReturnDate'].max()
-     date_start = nearest_date - pd.DateOffset(months=num_months)
-     filtered_df = df3[(df3['ReturnDate'] >= date_start) & (df3['ReturnDate'] <= nearest_date)]
-     return round(filtered_df[value_col].std() * (12**0.5) * 100,4) if not filtered_df.empty else None
-
+def std_dev(df3, value_col, num_months):
+    nearest_date = df3['ReturnDate'].max()
+    date_start = nearest_date - pd.DateOffset(months=num_months)
+    filtered_df = df3[(df3['ReturnDate'] >= date_start) & (df3['ReturnDate'] <= nearest_date)]
+    return round(filtered_df[value_col].std() * (12**0.5) * 100, 4) if not filtered_df.empty else None
 
 # Function to generate a PDF
 def generate_pdf(pdf_title, text_results2, dataframes):
