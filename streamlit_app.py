@@ -312,7 +312,9 @@ if uploaded_file is not None:
                     funds_pivot['PW'] = np.dot(fund_returns, pw_weights)     
 
                     # Benchmark fund input                 
-                                       
+
+                    
+
                     if benchmark:
                         bm_df = df[df['PortfolioName'].str.lower() == benchmark.lower()]
                         if not bm_df.empty:
@@ -328,8 +330,8 @@ if uploaded_file is not None:
                             full_table['RM_active'] = full_table['RM'] - full_table[bm_name]
                             full_table['CW_active'] = full_table['CW'] - full_table[bm_name]
                             full_table['PW_active'] = full_table['PW'] - full_table[bm_name]
-                            full_table['CWvRM'] = full_table['CW_active'] - full_table['RM_active']
                             full_table['PWvRM'] = full_table['PW_active'] - full_table['RM_active']
+                            full_table['PWvCW'] = full_table['PW_active'] - full_table['CW_active']
 
                             
                             # Volatility calculation
@@ -349,20 +351,23 @@ if uploaded_file is not None:
                                 "RM_active": [std_dev(full_table, 'RM_active', m) for m in vol_periods],
                                 "CW_active": [std_dev(full_table, 'CW_active', m) for m in vol_periods],
                                 "PW_active": [std_dev(full_table, 'PW_active', m) for m in vol_periods],
-                                "CWvRM": [std_dev(full_table, 'CWvRM', m) for m in vol_periods],
                                 "PWvRM": [std_dev(full_table, 'PWvRM', m) for m in vol_periods],
+                                "PWvCW": [std_dev(full_table, 'PWvCW', m) for m in vol_periods],
                             })
+
+                            #tables.append(("Volatility Table",vol_table))
+
+                            st.session_state['vol_table'] = vol_table
 
                             st.write("Volatility Table")
 
-                            st.dataframe(vol_table)
+                            #st.dataframe(vol_table)
+                            st.write(vol_table)
 
-                            tables.append(("Volatility Table",vol_table))
+                            
 
                         else:
-                            st.error("Benchmark fund not found.") 
-
-                
+                            st.error("Benchmark fund not found.")                                                 
                 
 
                 except Exception as e:
@@ -373,10 +378,17 @@ if uploaded_file is not None:
             st.warning("Please reselect your funds and try again.")
 
     if st.button("Download Results"):
-            pdf_data = generate_pdf(doc_title,text_results, tables)
+
+        if 'vol_table' in st.session_state:
+            vol_table = st.session_state['vol_table']
+
+            tables.append(("Volatility Table", vol_table))        
+            pdf_data = generate_pdf(doc_title,text_results,tables)
             st.download_button(
                 label="Download PDF",
                 data=pdf_data,
                 file_name="results.pdf",
                 mime="application/pdf"
                              )
+        else:
+            st.error("Please click 'Proceed with Calculations' before downloading the results.")
