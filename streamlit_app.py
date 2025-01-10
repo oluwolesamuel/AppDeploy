@@ -46,6 +46,14 @@ text_results = []
 
 tables = []
 
+ # Volatility calculation
+ def std_dev(df3, value_col, num_months):
+     nearest_date = df3['ReturnDate'].max()
+     date_start = nearest_date - pd.DateOffset(months=num_months)
+     filtered_df = df3[(df3['ReturnDate'] >= date_start) & (df3['ReturnDate'] <= nearest_date)]
+     return round(filtered_df[value_col].std() * (12**0.5) * 100,4) if not filtered_df.empty else None
+
+
 # Function to generate a PDF
 def generate_pdf(pdf_title, text_results2, dataframes):
     """
@@ -80,7 +88,7 @@ def generate_pdf(pdf_title, text_results2, dataframes):
         pdf.ln(5)  # Add spacing after each text block
 
     # Add DataFrames with titles
-    for title, df in dataframes:
+    for title, df2 in dataframes:
         pdf.ln(5)  # Add spacing before the table
         pdf.set_font("Arial", style="B", size=12)
         pdf.cell(0, 10, title, ln=True)
@@ -91,18 +99,18 @@ def generate_pdf(pdf_title, text_results2, dataframes):
         # Set custom width for the first column and distribute remaining width to other columns
         first_col_width = 45  # Adjust as needed
         remaining_width = pdf.w - 20 - first_col_width
-        col_width = remaining_width / (len(df.columns) - 1)
+        col_width = remaining_width / (len(df2.columns) - 1)
 
         row_height = pdf.font_size + 2
 
         # Write header row
-        pdf.cell(first_col_width, row_height, str(df.columns[0]), border=1)  # First column header
+        pdf.cell(first_col_width, row_height, str(df2.columns[0]), border=1)  # First column header
         for col in df.columns[1:]:
             pdf.cell(col_width, row_height, str(col), border=1)  # Other column headers
         pdf.ln(row_height)
 
         # Write data rows
-        for row in df.itertuples(index=False):
+        for row in df2.itertuples(index=False):
             pdf.cell(first_col_width, row_height, str(row[0]), border=1)  # First column value
             for value in row[1:]:
                 pdf.cell(col_width, row_height, str(value), border=1)  # Other column values
@@ -334,14 +342,8 @@ if uploaded_file is not None:
                             full_table['PWvCW'] = full_table['PW_active'] - full_table['CW_active']
 
                             
-                            # Volatility calculation
-                            def std_dev(df, value_col, num_months):
-                                nearest_date = df['ReturnDate'].max()
-                                date_start = nearest_date - pd.DateOffset(months=num_months)
-                                filtered_df = df[(df['ReturnDate'] >= date_start) & (df['ReturnDate'] <= nearest_date)]
-                                return round(filtered_df[value_col].std() * (12**0.5) * 100,4) if not filtered_df.empty else None
-
-                            
+                           
+                            ## volatility calculations
                             vol_periods = np.array([int(w) for w in vol_month.split(",")])
                             vol_table = pd.DataFrame({
                                 "VolatilityPeriod": [f"{m}m" for m in vol_periods],
