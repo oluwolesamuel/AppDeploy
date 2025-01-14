@@ -229,8 +229,8 @@ if uploaded_file is not None:
             #
 
             measures_table = pd.DataFrame({
-                'Measure' : ['SA Equity(Hist/Curr)', 'Global Equity(Hist/Curr)', 'Total Global(Hist/Curr)',
-                'RR EXP excl TAA Alpha', 'TAA Alpha', 'EXP Return Net Fees'],
+                'Measure' : ['Total SA Equity(Hist/Curr)', 'Total Global Equity(Hist/Curr)', 'Total Global(Hist/Curr)',
+                'RealReturn EXP excl TAA Alpha', 'TAA Alpha', 'Expected return net of fees'],
                 'RM' : [0,0,0,0,0,0],
                 'Current' : [0,0,0,0,0,0],
                 'Proposed' : [0,0,0,0,0,0]
@@ -253,7 +253,7 @@ if uploaded_file is not None:
 
             sum_row = measures_table2.loc[3, ['RM', 'Current', 'Proposed']] + measures_table2.loc[4, ['RM', 'Current', 'Proposed']]
 
-            new_row = pd.DataFrame([{'Measure':'Total RR EXP', 'RM':sum_row['RM'], 
+            new_row = pd.DataFrame([{'Measure':'Total RealReturn Expected Gross', 'RM':sum_row['RM'], 
             'Current':sum_row['Current'], 'Proposed':sum_row['Proposed']}])
 
             measures_table2 = pd.concat([measures_table2,new_row], ignore_index = True)
