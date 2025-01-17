@@ -223,7 +223,7 @@ if uploaded_file is not None:
                     st.warning("Some values have not been entered correctly. Please check your input.")   
 
 
-            #updated_data = st.session_state["updated_data"]
+            updated_data = st.session_state["updated_data"]
 
         
             #
