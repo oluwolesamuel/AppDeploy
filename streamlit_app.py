@@ -229,8 +229,8 @@ if uploaded_file is not None:
             #
 
             measures_table = pd.DataFrame({
-                'Measure' : ['SA Equity(Hist/Curr)', 'Global Equity(Hist/Curr)', 'Total Global(Hist/Curr)',
-                'RR EXP excl TAA Alpha', 'TAA Alpha', 'Exp return net of fees'],
+                'Measure' : ['Total SA Equity(Hist/Curr)', 'Total Global Equity(Hist/Curr)', 'Total Global(Hist/Curr)',
+                'RealReturn EXP excl TAA Alpha', 'TAA Alpha', 'Exp return net of fees'],
                 'RM' : [0,0,0,0,0,0],
                 'Current' : [0,0,0,0,0,0],
                 'Proposed' : [0,0,0,0,0,0]
