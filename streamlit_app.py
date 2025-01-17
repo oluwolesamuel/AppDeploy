@@ -104,7 +104,7 @@ def generate_pdf(pdf_title, text_results2, dataframes):
 
         # Write header row
         pdf.cell(first_col_width, row_height, str(df2.columns[0]), border=1)  # First column header
-        for col in df.columns[1:]:
+        for col in df2.columns[1:]:
             pdf.cell(col_width, row_height, str(col), border=1)  # Other column headers
         pdf.ln(row_height)
 
